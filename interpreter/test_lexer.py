@@ -3,7 +3,7 @@ import interpreter.token as token
 from interpreter.lexer import Lexer
 
 class LexerTest(unittest.TestCase):
-    def test_lexer_produces_correct_(self):
+    def test_lexer_produces_correct_tokens(self):
         input = """
             let five = 5;
             let ten = 10;
