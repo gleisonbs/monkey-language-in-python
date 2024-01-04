@@ -17,7 +17,6 @@ class Parser:
 
     def parse_program(self):
         program = Program()
-        count = 5
         while self.cur_token.type != token.EOF:
             statement = self.parse_statement()
             if statement is not None:
@@ -28,7 +27,6 @@ class Parser:
     def parse_statement(self):
         if self.cur_token.type == token.LET:
             return self.parse_let_statement()
-
 
     def parse_let_statement(self):
         letStatement = LetStatement(self.cur_token)
