@@ -4,7 +4,7 @@ class Token:
         self.literal = literal
 
     def __str__(self):
-        return f"Type: {self.type} / Literal: {self.literal}"
+        return f"Token(Type: {self.type}, Literal: {self.literal})"
 
 
 ILLEGAL = "ILLEGAL"

@@ -2,6 +2,7 @@ import unittest
 from interpreter.lexer import Lexer
 from interpreter.parser import Parser
 import interpreter.token as token
+from interpreter.ast import LetStatement
 
 class ParserTest(unittest.TestCase):
     def test_let_statement_is_correctly_parsed(self):
@@ -16,5 +17,12 @@ class ParserTest(unittest.TestCase):
 
         program = parser.parse_program()
 
-        for statement in program.statements:
-            self.assertEqual(statement.token.type, token.LET)
+        expected_identifiers = [
+            "x", "y", "foobar",
+        ]
+
+        for i in range(len(program.statements)):
+            self.assertEqual(isinstance(program.statements[i], LetStatement), True)
+            self.assertEqual(program.statements[i].token.type, token.LET)
+            self.assertEqual(program.statements[i].name.value, expected_identifiers[i])
+            self.assertEqual(program.statements[i].name.token_literal(), expected_identifiers[i])
