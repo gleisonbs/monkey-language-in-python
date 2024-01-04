@@ -1,5 +1,5 @@
 import interpreter.token as token
-from interpreter.ast import Program, LetStatement, Identifier
+from interpreter.ast import Program, LetStatement, ReturnStatement, Identifier
 
 class Parser:
     def __init__(self, lexer):
@@ -27,14 +27,16 @@ class Parser:
     def parse_statement(self):
         if self.cur_token.type == token.LET:
             return self.parse_let_statement()
+        if self.cur_token.type == token.RETURN:
+            return self.parse_return_statement()
 
     def parse_let_statement(self):
-        letStatement = LetStatement(self.cur_token)
+        statement = LetStatement(self.cur_token)
 
         if not self.expect_peek(token.IDENT):
             return None
 
-        letStatement.name = Identifier(self.cur_token, self.cur_token.literal)
+        statement.name = Identifier(self.cur_token, self.cur_token.literal)
 
         if not self.expect_peek(token.ASSIGN):
             self.next_token()
@@ -42,7 +44,17 @@ class Parser:
         while not self.cur_token_is(token.SEMICOLON) and not self.cur_token_is(token.EOF):
             self.next_token()
         
-        return letStatement
+        return statement
+
+    def parse_return_statement(self):
+        statement = ReturnStatement(self.cur_token)
+
+        self.next_token()
+
+        if not self.cur_token_is(token.SEMICOLON):
+            self.next_token()
+
+        return statement
 
     def expect_peek(self, token_type):
         if self.peek_token_is(token_type):

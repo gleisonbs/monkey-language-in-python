@@ -1,2 +1,2 @@
-test:
+tests:
 	@python -m unittest discover

@@ -60,3 +60,23 @@ class LetStatement(Statement):
             ret += self.value.string()
         ret += ";"
         return ret
+
+
+class ReturnStatement(Statement):
+    def __init__(self, token: Token, 
+        return_value: Optional[Expression] = None):
+        self.token = token
+        self.return_value = return_value
+
+    def __str__(self) -> str:
+        return f"{self.token}, {self.identifier}, {self.return_value}"
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def string(self) -> str:
+        ret = " "
+        if self.return_value:
+            ret += self.return_value.string()
+        ret += ";"
+        return ret
