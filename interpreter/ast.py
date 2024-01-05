@@ -47,7 +47,7 @@ class LetStatement(Statement):
         self.value = expression
 
     def __str__(self) -> str:
-        return f"{self.token}, {self.identifier}, {self.value}"
+        return f"{self.token}, Name: {self.name}, Value: {self.value}"
 
     def token_literal(self) -> str:
         return self.token.literal
@@ -69,7 +69,7 @@ class ReturnStatement(Statement):
         self.return_value = return_value
 
     def __str__(self) -> str:
-        return f"{self.token}, {self.identifier}, {self.return_value}"
+        return f"{self.token}, Return Value: {self.return_value}"
 
     def token_literal(self) -> str:
         return self.token.literal
@@ -80,3 +80,21 @@ class ReturnStatement(Statement):
             ret += self.return_value.string()
         ret += ";"
         return ret
+
+
+class ExpressionStatement(Statement):
+    def __init__(self, token: Token, expression: Optional[Expression] = None):
+        self.token = token
+        self.expression = expression
+
+    def __str__(self) -> str:
+        return f"{self.token}, Expression: {self.expression}"
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def string(self) -> str:
+        if self.expression:
+            return self.expression.string()
+        return ""
+
