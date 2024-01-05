@@ -2,7 +2,13 @@ import unittest
 from interpreter.lexer import Lexer
 from interpreter.parser import Parser
 import interpreter.token as token
-from interpreter.ast import LetStatement, ReturnStatement, ExpressionStatement, Identifier
+from interpreter.ast import (
+    LetStatement, 
+    ReturnStatement, 
+    ExpressionStatement, 
+    Identifier,
+    IntegerLiteral
+)
 
 class ParserTest(unittest.TestCase):
     def test_let_statement_is_correctly_parsed(self):
@@ -14,8 +20,9 @@ class ParserTest(unittest.TestCase):
 
         lexer = Lexer(input)
         parser = Parser(lexer)
-
         program = parser.parse_program()
+
+        self.check_parser_errors(parser)
 
         expected_identifiers = [
             "x", "y", "foobar",
@@ -37,8 +44,9 @@ class ParserTest(unittest.TestCase):
 
         lexer = Lexer(input)
         parser = Parser(lexer)
-
         program = parser.parse_program()
+
+        self.check_parser_errors(parser)
 
         self.assertEqual(len(program.statements), 3)
         for i in range(len(program.statements)):
@@ -60,7 +68,7 @@ class ParserTest(unittest.TestCase):
             "foobar",
         ]
 
-        self.assertEqual(len(program.statements), 1)
+        self.assertEqual(len(program.statements), len(expected_identifiers))
         for i in range(len(program.statements)):
             statement = program.statements[i]
             self.assertEqual(isinstance(statement, ExpressionStatement), True)
@@ -69,3 +77,39 @@ class ParserTest(unittest.TestCase):
             identifier = statement.expression
             self.assertEqual(identifier.value, expected_identifiers[i])
             self.assertEqual(identifier.token_literal(), expected_identifiers[i])
+
+    def test_integer_literal_is_correctly_parsed(self):
+        input = """
+        5;
+        838383;
+        """
+
+        lexer = Lexer(input)
+        parser = Parser(lexer)
+        program = parser.parse_program()
+
+        self.check_parser_errors(parser)
+
+        expected_identifiers = [
+            "5",
+            "838383"
+        ]
+
+        self.assertEqual(len(program.statements), len(expected_identifiers))
+        for i in range(len(program.statements)):
+            statement = program.statements[i]
+            self.assertEqual(isinstance(statement, ExpressionStatement), True)
+        
+            literal = statement.expression
+            self.assertEqual(isinstance(literal, IntegerLiteral), True)
+            self.assertEqual(literal.value, expected_identifiers[i])
+            self.assertEqual(literal.token_literal(), expected_identifiers[i])
+                   
+    def check_parser_errors(self, parser):
+        errors = parser.errors
+
+        if not errors:
+            return
+
+        for error in errors:
+            self.fail(error)

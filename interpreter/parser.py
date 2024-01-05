@@ -1,6 +1,13 @@
 from enum import IntEnum
 import interpreter.token as token
-from interpreter.ast import Program, LetStatement, ReturnStatement, ExpressionStatement, Identifier
+from interpreter.ast import (
+    Program,
+    LetStatement,
+    ReturnStatement,
+    ExpressionStatement,
+    Identifier,
+    IntegerLiteral
+)
 
 class Parser:
     def __init__(self, lexer):
@@ -14,6 +21,7 @@ class Parser:
 
         self.prefix_parse_fns = dict()
         self.register_prefix(token.IDENT, self.parse_identifier)
+        self.register_prefix(token.INT, self.parse_integer_literal)
 
     def register_prefix(self, token_type, prefix_parse_fn):
         self.prefix_parse_fns[token_type] = prefix_parse_fn
@@ -74,7 +82,7 @@ class Parser:
         return statement
 
     def parse_expression(self, precedence):
-        prefix = self.prefix_parse_fns[self.cur_token.type]
+        prefix = self.prefix_parse_fns.get(self.cur_token.type)
         if not prefix:
             return None
         
@@ -85,10 +93,14 @@ class Parser:
     def parse_identifier(self):
         return Identifier(self.cur_token, self.cur_token.literal)
 
+    def parse_integer_literal(self):
+        return IntegerLiteral(self.cur_token, self.cur_token.literal)
+
     def expect_peek(self, token_type):
         if self.peek_token_is(token_type):
             self.next_token()
             return True
+        self.peek_error(token_type)
         return False
 
     def cur_token_is(self, token_type):
