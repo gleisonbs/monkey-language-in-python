@@ -3,11 +3,12 @@ from interpreter.lexer import Lexer
 from interpreter.parser import Parser
 import interpreter.token as token
 from interpreter.ast import (
-    LetStatement, 
-    ReturnStatement, 
     ExpressionStatement, 
     Identifier,
     IntegerLiteral
+    LetStatement,
+    PrefixExpression,
+    ReturnStatement, 
 )
 
 class ParserTest(unittest.TestCase):
@@ -21,8 +22,8 @@ class ParserTest(unittest.TestCase):
         lexer = Lexer(input)
         parser = Parser(lexer)
         program = parser.parse_program()
-
         self.check_parser_errors(parser)
+
 
         expected_identifiers = [
             "x", "y", "foobar",
@@ -45,8 +46,8 @@ class ParserTest(unittest.TestCase):
         lexer = Lexer(input)
         parser = Parser(lexer)
         program = parser.parse_program()
-
         self.check_parser_errors(parser)
+
 
         self.assertEqual(len(program.statements), 3)
         for i in range(len(program.statements)):
@@ -61,8 +62,8 @@ class ParserTest(unittest.TestCase):
 
         lexer = Lexer(input)
         parser = Parser(lexer)
-
         program = parser.parse_program()
+        self.check_parser_errors(parser)
 
         expected_identifiers = [
             "foobar",
@@ -104,6 +105,36 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(isinstance(literal, IntegerLiteral), True)
             self.assertEqual(literal.value, expected_identifiers[i])
             self.assertEqual(literal.token_literal(), expected_identifiers[i])
+
+    def test_prefix_expression_is_correctly_parsed(self):
+        input = """
+        !5;
+        -15;
+        !true;
+        !false;
+        """
+
+        expected_prefixes = [
+            ("!", '5'),
+            ("-", '15'),
+            ("!", 'true'),
+            ("!", 'false'),
+        ]
+
+        lexer = Lexer(input)
+        parser = Parser(lexer)
+        program = parser.parse_program()
+        self.check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 4)
+        for i in range(len(program.statements)):
+            statement = program.statements[i]
+            self.assertEqual(isinstance(statement, ExpressionStatement), True)
+
+            prefix_expression = statement.expression
+            self.assertEqual(isinstance(prefix_expression, PrefixExpression), True)
+            self.assertEqual(prefix_expression.operator, expected_prefixes[i][0])
+            self.assertEqual(prefix_expression.right.value, expected_prefixes[i][1])
                    
     def check_parser_errors(self, parser):
         errors = parser.errors

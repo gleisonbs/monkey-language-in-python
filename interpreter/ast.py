@@ -111,3 +111,26 @@ class  IntegerLiteral(Expression):
 
     def string(self) -> str:
         return self.token.literal
+
+class PrefixExpression(Expression):
+    def __init__(self, token: Token, operator: str, right: Optional[Expression] = None):
+        self.token = token
+        self.operator = operator
+        self.right = right
+
+    def token_literal(self):
+        return self.token.literal
+
+    def string(self):
+        return f"({self.operator}{self.right.string()})"
+
+class Boolean(Expression):
+    def __init__(self, token: Token, value: bool):
+        self.token = token
+        self.value = value
+
+    def token_literal(self):
+        return self.token.literal
+
+    def string(self):
+        return self.token.literal
