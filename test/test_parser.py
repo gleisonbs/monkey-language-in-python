@@ -5,7 +5,7 @@ import interpreter.token as token
 from interpreter.ast import (
     ExpressionStatement, 
     Identifier,
-    IntegerLiteral
+    IntegerLiteral,
     LetStatement,
     PrefixExpression,
     ReturnStatement, 
