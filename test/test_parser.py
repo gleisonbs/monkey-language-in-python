@@ -5,6 +5,7 @@ import interpreter.token as token
 from interpreter.ast import (
     ExpressionStatement, 
     Identifier,
+    InfixExpression,
     IntegerLiteral,
     LetStatement,
     PrefixExpression,
@@ -92,8 +93,8 @@ class ParserTest(unittest.TestCase):
         self.check_parser_errors(parser)
 
         expected_identifiers = [
-            "5",
-            "838383"
+            5,
+            838383
         ]
 
         self.assertEqual(len(program.statements), len(expected_identifiers))
@@ -104,7 +105,7 @@ class ParserTest(unittest.TestCase):
             literal = statement.expression
             self.assertEqual(isinstance(literal, IntegerLiteral), True)
             self.assertEqual(literal.value, expected_identifiers[i])
-            self.assertEqual(literal.token_literal(), expected_identifiers[i])
+            self.assertEqual(literal.token_literal(), f"{expected_identifiers[i]}")
 
     def test_prefix_expression_is_correctly_parsed(self):
         input = """
@@ -115,10 +116,10 @@ class ParserTest(unittest.TestCase):
         """
 
         expected_prefixes = [
-            ("!", '5'),
-            ("-", '15'),
-            ("!", 'true'),
-            ("!", 'false'),
+            ("!", 5),
+            ("-", 15),
+            ("!", True),
+            ("!", False),
         ]
 
         lexer = Lexer(input)
@@ -136,6 +137,56 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(prefix_expression.operator, expected_prefixes[i][0])
             self.assertEqual(prefix_expression.right.value, expected_prefixes[i][1])
                    
+    def test_infix_expression_is_correctly_parsed(self):
+        infix_tests = [
+            ("5 + 5", 5, "+", 5),
+            ("5 - 5", 5, "-", 5),
+            ("5 * 5", 5, "*", 5),
+            ("5 / 5", 5, "/", 5),
+            ("5 > 5", 5, ">", 5),
+            ("5 < 5", 5, "<", 5),
+            ("5 == 5", 5, "==", 5),
+            ("5 != 5", 5, "!=", 5),
+            ("true == true", True, "==", True),
+            ("true != false", True, "!=", False),
+            ("false == false", False, "==", False),
+        ]
+
+        for i in range(len(infix_tests)):
+            input = infix_tests[i][0]
+
+            lexer = Lexer(input)
+            parser = Parser(lexer)
+            program = parser.parse_program()
+            self.check_parser_errors(parser)
+
+            self.assertEqual(len(program.statements), 1)
+
+            statement = program.statements[0]
+            self.assertEqual(isinstance(statement, ExpressionStatement), True)
+
+            infix_expression = statement.expression
+            self.assertEqual(isinstance(infix_expression, InfixExpression), True)
+
+            self.check_literal_expression(infix_expression.left, infix_tests[i][1])
+
+    def check_literal_expression(self, expression, expected_value):
+        if isinstance(expected_value, bool):
+            return self.check_boolean_literal(expression, expected_value)
+        elif isinstance(expected_value, int):
+            return self.check_integer_literal(expression, expected_value)
+
+    def check_integer_literal(self, integer_literal, value):
+        self.assertEqual(integer_literal.value, value)
+        self.assertEqual(integer_literal.token_literal(), f"{value}")
+
+    def check_boolean_literal(self, boolean_literal, value):
+        self.assertEqual(boolean_literal.value, value)
+
+        literal = boolean_literal.token_literal()
+        literal = literal[0].upper() + literal[1:]
+        self.assertEqual(literal, f"{value}")
+
     def check_parser_errors(self, parser):
         errors = parser.errors
 

@@ -1,3 +1,4 @@
+import interpreter.token as token
 from interpreter.token import Token
 from typing import List, Optional
 from abc import ABC, abstractmethod
@@ -5,6 +6,7 @@ from abc import ABC, abstractmethod
 class Program:
     def __init__(self):
         self.statements: List[Expression] = []
+
 
 class Node(ABC):
     @abstractmethod
@@ -15,13 +17,16 @@ class Node(ABC):
     def string() -> str:
         ...
 
+
 class Expression(Node):
     def expression_node():
         ...
 
+
 class Statement(Node):
     def statement_node():
         ...
+
 
 class Identifier(Expression):
     def __init__(self, token: Token, value: str):
@@ -98,8 +103,9 @@ class ExpressionStatement(Statement):
             return self.expression.string()
         return ""
 
+
 class  IntegerLiteral(Expression):
-    def __init__(self, token: Token, value: int):
+    def __init__(self, token: Token, value: Optional[int] = None):
         self.token = token
         self.value = value
 
@@ -112,6 +118,7 @@ class  IntegerLiteral(Expression):
     def string(self) -> str:
         return self.token.literal
 
+
 class PrefixExpression(Expression):
     def __init__(self, token: Token, operator: str, right: Optional[Expression] = None):
         self.token = token
@@ -123,6 +130,24 @@ class PrefixExpression(Expression):
 
     def string(self):
         return f"({self.operator}{self.right.string()})"
+
+class InfixExpression(Expression):
+    def __init__(self, 
+        token: Token, 
+        left: Expression, 
+        operator: str, 
+        right: Optional[Expression] = None):
+        self.token = token
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def token_literal(self):
+        return self.token.literal
+
+    def string(self):
+        return f"({self.left.string()} {self.operator} {self.right.string()})"
+
 
 class Boolean(Expression):
     def __init__(self, token: Token, value: bool):

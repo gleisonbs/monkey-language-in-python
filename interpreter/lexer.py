@@ -82,14 +82,14 @@ class Lexer:
 
     def read_identifier(self):
         ident_start = self.position
-        while self.is_letter():
+        while self.ch and self.is_letter():
             self.read_char()
         return self.input[ident_start:self.position]
 
 
     def read_number(self):
         ident_start = self.position
-        while self.is_digit():
+        while self.ch and self.is_digit():
             self.read_char()
         return self.input[ident_start:self.position]
 
