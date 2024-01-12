@@ -7,6 +7,13 @@ class Program:
     def __init__(self):
         self.statements: List[Expression] = []
 
+    def string(self):
+        return ''.join([s.string() for s in self.statements])
+
+    def token_literal(self):
+        if self.statements:
+            return self.statements[0].token_literal()
+        return ""
 
 class Node(ABC):
     @abstractmethod

@@ -170,6 +170,41 @@ class ParserTest(unittest.TestCase):
 
             self.check_literal_expression(infix_expression.left, infix_tests[i][1])
 
+    def test_operator_precedence_is_correctly_parsed(self):
+        precedence_tests = [
+            ("-a * b", "((-a) * b)"),
+            ( "!-a", "(!(-a))" ),
+            ( "a + b + c", "((a + b) + c)" ),
+            ( "a + b - c", "((a + b) - c)" ),
+            ( "a * b * c", "((a * b) * c)" ),
+            ( "a * b / c", "((a * b) / c)" ),
+            ( "a + b / c", "(a + (b / c))" ),
+            ( "a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)" ),
+            ( "3 + 4; -5 * 5", "(3 + 4)((-5) * 5)" ),
+            ( "5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))" ),
+            ( "5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))" ),
+            ( "3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))" ),
+            ( "3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))" ),
+            ( "true", "true" ),
+            ( "false", "false" ),
+            ( "3 > 5 == false", "((3 > 5) == false)" ),
+            ( "3 < 5 == true", "((3 < 5) == true)" ),
+            ( "1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)" ),
+            ( "(5 + 5) * 2", "((5 + 5) * 2)" ),
+            ( "2 / (5 + 5)", "(2 / (5 + 5))" ),
+            ( "-(5 + 5)", "(-(5 + 5))" ),
+            ( "!(true == true)", "(!(true == true))" ),
+        ]
+
+        for i in range(len(precedence_tests)):
+            input = precedence_tests[i][0]
+            lexer = Lexer(input)
+            parser = Parser(lexer)
+            program = parser.parse_program()
+            self.check_parser_errors(parser)
+            self.assertEqual(program.string(), precedence_tests[i][1])
+
+
     def check_literal_expression(self, expression, expected_value):
         if isinstance(expected_value, bool):
             return self.check_boolean_literal(expression, expected_value)
